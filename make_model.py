@@ -1,6 +1,9 @@
 from collections import Counter
 import numpy as np
 import pandas as pd
+from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
+from sklearn.svm import SVC, NuSVC, LinearSVC
+from sklearn.metrics import confusion_matrix
 
 def make_Dictionary(train_file):
 	dataset = open( train_file, "r" )
@@ -27,50 +30,35 @@ def extract_Features(mail_dir, dic):
 	dataset = open( mail_dir, "r" )
 	len_dataset = (sum(1 for _ in dataset))
 
+	dataset.seek(0)
 	feature_matrix = np.zeros((len_dataset, 3000))
 	label_matrix = []
 	for idxline, line in enumerate(dataset):
 		words = line.split()
 		label = words.pop(0)
-		label_matrix += label
+		label_matrix.append(label)
 		for word in words:
 			for idxdict, val in enumerate(dic):
-				if val == word:
+				if val[0] == word:
 					feature_matrix[idxline, idxdict] = words.count(word)
+	dataset.close()
 	return feature_matrix, label_matrix
 
 
-# dictionary = make_Dictionary("dataset")
-# # feature_data, label_data = extract_Features("dataset", dictionary)
+dictionary = make_Dictionary("dataset")
+feature_data, label_data = extract_Features("dataset", dictionary)
 
-# # print(feature_data)
-# # f = open('hasil', 'w')
-# # np.set_printoptions(threshold=np.nan)
-# # f.write(np.array_str(feature_data[0, :]))
-# # f.close()
-# # dataset = open( "dataset", "r" )
-# # print (sum(1 for _ in dataset))
-# # with dataset as ln:
-# # 	print (sum(1 for _ in ln))
+model1 = MultinomialNB()
+model2 = LinearSVC()
+model1.fit(feature_data, label_data)
+model2.fit(feature_data, label_data)
 
-# dataset = open( "dataset", "r" )
-
-# with 
-# 	len_dataset = (sum(1 for _ in dataset))
-
-# feature_matrix = np.zeros((len_dataset, 3000))
-# label_matrix = []
-
-
-# for idxline, line in enumerate(dataset):
-# 	words = line.split()
-# 	label = words.pop(0)
-# 	label_matrix += label
-# 	for word in words:
-# 		print (word)
-# 		for idxdict, val in enumerate(dictionary):
-# 			if val == word:
-# 				feature_matrix[idxline, idxdict] = words.count(word)
-
-dataset = pd.read_csv("dataset", sep='/t', error_bad_lines=True)
-print(dataset.head)
+feature_test, label_test = extract_Features("dataset", dictionary)
+result1 = model1.predict(feature_test)
+result2 = model2.predict(feature_test)
+print (confusion_matrix(label_test,result1))
+print (confusion_matrix(label_test,result2))
+# f = open('hasil', 'w')
+# np.set_printoptions(threshold=np.nan)
+# f.write(np.array_str(feature_data[0, :]))
+# f.close()
