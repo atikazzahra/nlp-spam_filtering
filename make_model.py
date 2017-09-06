@@ -5,6 +5,8 @@ from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.svm import SVC, NuSVC, LinearSVC
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import confusion_matrix
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
 
 def make_Dictionary(train_file):
 	dataset = open( train_file, "r" )
@@ -23,6 +25,12 @@ def make_Dictionary(train_file):
 	        del dictionary[item]
 	    elif len(item) == 1:
 	        del dictionary[item]
+
+	stopWords = set(stopwords.words('english'))
+	for item in list_to_remove:
+	    if item in stopWords:
+	        del dictionary[item]
+
 	dictionary = dictionary.most_common(3000)
 
 	return dictionary
@@ -62,8 +70,8 @@ scores = cross_val_score(model2, feature_data, label_data, cv=10)
 #result2 = model2.predict(feature_test)
 #print (confusion_matrix(label_test,result1))
 #print (confusion_matrix(label_test,result2))
-print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-# f = open('hasil', 'w')
+print("Accuracy: %0.4f (+/- %0.4f)" % (scores.mean(), scores.std() * 2))
+f = open('dict', 'w')
 # np.set_printoptions(threshold=np.nan)
-# f.write(np.array_str(feature_data[0, :]))
-# f.close()
+f.write(str(dictionary))
+f.close()
