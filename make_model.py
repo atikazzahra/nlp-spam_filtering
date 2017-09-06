@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.svm import SVC, NuSVC, LinearSVC
+from sklearn.model_selection import cross_val_score
 from sklearn.metrics import confusion_matrix
 
 def make_Dictionary(train_file):
@@ -48,16 +49,20 @@ def extract_Features(mail_dir, dic):
 dictionary = make_Dictionary("dataset")
 feature_data, label_data = extract_Features("dataset", dictionary)
 
-model1 = MultinomialNB()
+#model1 = MultinomialNB()
 model2 = LinearSVC()
-model1.fit(feature_data, label_data)
+#model1.fit(feature_data, label_data)
 model2.fit(feature_data, label_data)
 
-feature_test, label_test = extract_Features("dataset", dictionary)
-result1 = model1.predict(feature_test)
-result2 = model2.predict(feature_test)
-print (confusion_matrix(label_test,result1))
-print (confusion_matrix(label_test,result2))
+#model2 = svm.SVC(kernel='linear', C=1)
+scores = cross_val_score(model2, feature_data, label_data, cv=10)
+
+#feature_test, label_test = extract_Features("dataset", dictionary)
+#result1 = model1.predict(feature_test)
+#result2 = model2.predict(feature_test)
+#print (confusion_matrix(label_test,result1))
+#print (confusion_matrix(label_test,result2))
+print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 # f = open('hasil', 'w')
 # np.set_printoptions(threshold=np.nan)
 # f.write(np.array_str(feature_data[0, :]))
