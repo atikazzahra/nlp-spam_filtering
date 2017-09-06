@@ -28,17 +28,20 @@ def preprocess(train_file):
 	    words_temp = []
 	    for word in words:
 		    #mengubah menjadi e-mail address
-		    word = word.replace(r'\b[\w\-.]+?@\w+?\.\w{2,4}\b', 'emailaddress').lower()
+		    word = re.sub(r'\b[\w\-.]+?@\w+?\.\w{2,4}\b', 'emailaddress',word)
 			#mengubah menjadi http address
-		    word = word.replace(r'(http[s]?\S+)|(\w+\.[A-Za-z]{2,4}\S*)', 'httpaddress').lower()
+		    word = re.sub(r'(http[s]?\S+)|(\w+\.[A-Za-z]{2,4}\S*)', 'httpaddress',word)
 			#mengubah menjadi moneysymbol
-		    word = word.replace(r'£|\$', 'moneysymbol').lower()
+		    word = re.sub(r'£|\$', 'moneysymbol',word)
 			#mengubah menjadi phonenumber
-		    word = word.replace(r'\b(\+\d{1,2}\s)?\d?[\-(.]?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b','phonenumber').lower() 
+		    word = re.sub(r'\b(\+\d{1,2}\s)?\d?[\-(.]?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b','phonenumbr',word)
 		    #mengubah menjadi number 
-		    word = word.replace(r'\d+(\.\d+)?', 'number').lower()
-		    if word not in stopWords and len(word) != 1:
-		        word = word.translate(word.maketrans("","", string.punctuation))
+		    word = re.sub(r'\d+(\.\d+)?', 'numbr',word)
+		    word = re.sub(r'[^\w\d\s]', ' ', word)
+		    word = re.sub(r'\s+', ' ', word)
+		    word = re.sub(r'^\s+|\s+?$', '',word)
+		    word = word.translate(word.maketrans("","", string.punctuation))
+		    if word.lower() not in stopWords and len(word) != 1:
 		        words_temp.append(word.lower())
 
 	    all_words.append(words_temp)
