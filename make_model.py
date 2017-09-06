@@ -8,6 +8,9 @@ from sklearn.metrics import confusion_matrix
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
+from nltk.tokenize import RegexpTokenizer
+import re
+import string
 
 def preprocess(train_file):
 	dataset = open( train_file, "r" )
@@ -15,15 +18,17 @@ def preprocess(train_file):
 	labels = []
 
 	stopWords = set(stopwords.words('english'))
+	
 	for line in dataset:
-	    words = (line.lower()).split()
+	    words = line.lower().split()
 	    label = words.pop(0)
 	    labels.append(label)
 
 	    words_temp = []
 	    for word in words:
-	        if word not in stopWords and word.isalpha() == True and len(word) != 1:
-		        words_temp.append(word)
+	        if word not in stopWords and len(word) != 1:
+	            word = word.translate(word.maketrans("","", string.punctuation))
+	            words_temp.append(word)
 
 	    all_words.append(words_temp)
 	dataset.close()
@@ -54,46 +59,18 @@ def extract_Features(dataset, dictionary):
 					feature_matrix[idxline, idxdict] = words.count(word)
 	return feature_matrix
 
-
-# data, label_data = make_Dictionary("dataset")
-# feature_data = extract_Features("dataset", dictionary)
-
-# #model1 = MultinomialNB()
-# model2 = LinearSVC()
-# #model1.fit(feature_data, label_data)
-# model2.fit(feature_data, label_data)
-
-# #model2 = svm.SVC(kernel='linear', C=1)
-# scores = cross_val_score(model2, feature_data, label_data, cv=10)
-
-# #feature_test, label_test = extract_Features("dataset", dictionary)
-# #result1 = model1.predict(feature_test)
-# #result2 = model2.predict(feature_test)
-# #print (confusion_matrix(label_test,result1))
-# #print (confusion_matrix(label_test,result2))
-# print("Accuracy: %0.4f (+/- %0.4f)" % (scores.mean(), scores.std() * 2))
-# f = open('dict', 'w')
-# # np.set_printoptions(threshold=np.nan)
-# f.write(str(dictionary))
-# f.close()
-
 data, label_data = preprocess("dataset")
 dictionary = make_Dictionary(data, 3000)
 feature_data = extract_Features(data, dictionary)
 
-model2 = LinearSVC()
-scores = cross_val_score(model2, feature_data, label_data, cv=10)
-print("Accuracy: %0.4f (+/- %0.4f)" % (scores.mean(), scores.std() * 2))
-
 f = open('dict', 'w')
-# # np.set_printoptions(threshold=np.nan)
 f.write(str(dictionary))
 f.close()
 
-# g = open('hasil', 'w')
-# g.write(str(data))
-# g.close()
+g = open('hasil2', 'w')
+g.write(str(data))
+g.close()
 
-# g = open('feature', 'w')
-# g.write(np.array_str(feature_data[5574 : ]))
-# g.close()
+model2 = LinearSVC()
+scores = cross_val_score(model2, feature_data, label_data, cv=10)
+print("Accuracy: %0.4f (+/- %0.4f)" % (scores.mean(), scores.std() * 2))
