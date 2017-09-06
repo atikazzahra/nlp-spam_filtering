@@ -7,6 +7,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import confusion_matrix
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
 from nltk.tokenize import RegexpTokenizer
 import re
@@ -26,16 +27,30 @@ def preprocess(train_file):
 
 	    words_temp = []
 	    for word in words:
-	        if word not in stopWords and len(word) != 1:
-	            word = word.translate(word.maketrans("","", string.punctuation))
-	            words_temp.append(word)
+		    #mengubah menjadi e-mail address
+		    word = word.replace(r'\b[\w\-.]+?@\w+?\.\w{2,4}\b', 'emailaddress').lower()
+			#mengubah menjadi http address
+		    word = word.replace(r'(http[s]?\S+)|(\w+\.[A-Za-z]{2,4}\S*)', 'httpaddress').lower()
+			#mengubah menjadi moneysymbol
+		    word = word.replace(r'£|\$', 'moneysymbol').lower()
+			#mengubah menjadi phonenumber
+		    word = word.replace(r'\b(\+\d{1,2}\s)?\d?[\-(.]?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b','phonenumber').lower() 
+		    #mengubah menjadi number 
+		    word = word.replace(r'\d+(\.\d+)?', 'number').lower()
+		    if word not in stopWords and len(word) != 1:
+		        word = word.translate(word.maketrans("","", string.punctuation))
+		        words_temp.append(word.lower())
 
 	    all_words.append(words_temp)
 	dataset.close()
 
 	for idw, words in enumerate(all_words):
+		wnl = WordNetLemmatizer()
 		ps = PorterStemmer()
 		for idx, word in enumerate(words):
+			#lemmatisasi
+			all_words[idw][idx] = wnl.lemmatize(word)
+			#stemming
 			all_words[idw][idx] = ps.stem(word)
 
 	return all_words, labels
