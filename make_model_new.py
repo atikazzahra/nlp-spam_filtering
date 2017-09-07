@@ -1,6 +1,7 @@
 from collections import Counter
 import numpy as np
 import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.svm import SVC, NuSVC, LinearSVC
 from sklearn.model_selection import cross_val_score
@@ -73,14 +74,16 @@ data, label_data = preprocess("dataset")
 dictionary = make_Dictionary(data, 3000)
 feature_data = extract_Features(data, dictionary)
 
-f = open('dictnew', 'w')
-f.write(str(dictionary))
-f.close()
-
-g = open('hasilnew', 'w')
-g.write(str(data))
-g.close()
-
 model2 = LinearSVC()
 scores = cross_val_score(model2, feature_data, label_data, cv=10)
 print("Accuracy: %0.4f (+/- %0.4f)" % (scores.mean(), scores.std() * 2))
+
+model2.fit(feature_data, label_data)
+
+significant_params = pd.Series(
+    model2.coef_.ravel(),
+    index= [x[0] for x in dictionary]
+).sort_values(ascending=False)[:20]
+
+for ind, val in significant_params.iteritems():
+    print(ind,' | ',val)
